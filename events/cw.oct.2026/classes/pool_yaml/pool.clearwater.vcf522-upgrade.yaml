@@ -1,0 +1,47 @@
+# Clearwater deployment pool definition (read by scripts/vlp_pool.py; flows/create_pool.py, flows/edit_pool.py).
+# CREATE = name/description/templates (primary only) below. UPDATE = everything after create (see `update:` at the bottom).
+# Values in "<...>" are undecided and BLOCK any write until replaced. Preflight/dry-run tolerates them.
+# Runbook: docs/deployment-pool.runbook.md
+# Pool rows need the template shadowed in each OVDC below: classes/shadow_yaml/shadow.clearwater.vcf522-upgrade.yaml, docs/shadowing.runbook.md
+tenant: livefire                      # eduprod is cloud capacity, not the tenant
+poolName: VCF522-Upgrade-VCF9.1-REV1  # AG p100 "Name"; decided by user
+description: ""                       # AG p100 "Description"; the 2026-10-08 live create typed NO description (field left empty; not in recording)
+templates:                            # AG p100: ONE primary template at create; add more later via Edit Lab Templates
+  - name: VCF522-Upgrade-VCF9.1-REV1
+    catalog: CM3-EDUPROD-DGC
+# Future (not part of this pool): VCF91VKS-FastTrack-v5 is still copying (see class.clearwater.vks-fasttrack.yaml plannedTemplate).
+ovdcs:                                # CLAUDE.md / env OVDCS; each yields a "template - ovdc" entry (AG p102; API p66)
+  - lvn3-vcd2-eduprod-r-ovdc8
+  - lvn3-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd1-eduprod-r-ovdc3
+  - lvn9-vcd1-eduprod-r-ovdc12
+  - lvn9-vcd2-eduprod-r-ovdc6
+  - lvn9-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd2-eduprod-r-ovdc8
+  - lvn9-vcd2-eduprod-r-ovdc13
+# Prepop values are PER template-OVDC row on Edit Lab Templates (AG p102); the pool aggregates them (AG p101).
+# Scalars below apply to every OVDC; use perOvdc to override. 0 means no prepops (no capacity consumed).
+refillAt: 0                         # DECIDED 0 (no prepops for now); least number of available prepops before refilling
+fillUp: 0                           # DECIDED 0; number of prepops to reach
+prepops: 0                          # DECIDED 0: nothing deploys until sizing is raised later; prepops to deploy now; changing it adds/removes deployments immediately (AG p102)
+perOvdc: {}                          # e.g. { lvn9-vcd2-eduprod-r-ovdc6: {refillAt: 1, fillUp: 2, prepops: 2} }
+enabled: true                        # UNVERIFIED: create default per API p69; recording did not touch Enabled. Confirm in post-create check (AG p101-102)
+explicitlyReadyPrepops: false        # only exists if Portal Settings > Configuration > Deployments > Explicitly ready prepops is on (AG p100)
+# ---- creation record (from recordings/create_pool.py, live livefire write) ----
+status: created                      # pool exists in VLP; do NOT re-run the create flow (it refuses duplicates)
+createdOn: 2026-10-08
+createdVia: recorded UI session (Create New > Name + primary template > Create Deployment Pool > Add Lab Templates > Select All > Add > Update Deployment Pool)
+createdPrimaryEntry: "VCF522-Upgrade-VCF9.1-REV1 - [lvn3-vcd2-eduprod-r-gc]"   # cloud-level entry picked in the create form
+createdRows: "ALL rows offered by the Add Lab Templates dialog (Select All); intended = the 8 ovdcs above; actual row list/count NOT recorded - verify per docs/dry-run.ui.checklist.md section 11"
+createdPrepopValues: all 0 intended; no Refill At/Fill Up/Prepops cell was edited in the recording (verify)
+# ---- applied updates (status record; not from a recording) ----
+applied:                              # update items actually applied in VLP, with provenance
+  initialConsoleVm: console           # APPLIED: Edit VMs, Initial Console on VM `console` (pool VCF522-Upgrade-VCF9.1-REV1)
+  appliedOn: 2026-10-08
+  method: manual UI                   # done by hand in the VLP UI, NOT via flows/edit_pool.py
+  source: user-reported, not recorded # still to verify: no other VM has Initial Console; power-on warning state
+# ---- update section (applied by flows/edit_pool.py AFTER create; every item is a separate gated write) ----
+# Edit items, in order: (1) edit_templates = the `ovdcs` rows + refillAt/fillUp/prepops/perOvdc/enabled above
+# (Edit Lab Templates, AG p101-102); (2) edit_vms = the settings below (Edit VMs, AG p103-104).
+update:
+  initialConsoleVm: console           # name of the ONE pool VM whose "Initial Console" toggle is on (AG p103; the VM list comes from the template, AG p100/API p66). UNVERIFIED selectors until the edit_pool_vms recording is reconciled

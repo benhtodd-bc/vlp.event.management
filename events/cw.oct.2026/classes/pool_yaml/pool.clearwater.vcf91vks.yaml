@@ -1,0 +1,39 @@
+# Clearwater deployment pool definition (read by scripts/vlp_pool.py; flows/create_pool.py, flows/edit_pool.py).
+# CREATE = name/description/templates (primary only) below. UPDATE = everything after create (see `update:` at the bottom).
+# Runbook: docs/deployment-pool.runbook.md
+# Each template gets its own pool (DECIDED 2026-10-09): this pool is dedicated to the VKS lab/class, built on
+# the real VKS template VCF91VKS-FastTrack-v5, NOT the VCF522-Upgrade-VCF9.1-REV1 pool (that one now belongs
+# to the VCF Upgrade session instead).
+# Shadow status as of 2026-10-09: all 8 OVDCs read type=deploying (not yet complete) via the CloudShadow API.
+# Pool creation can likely proceed before the shadow finishes (the primary cloud already holds the template;
+# shadows are for the OTHER OVDCs), but pool rows in those OVDCs won't have real capacity until shadows complete.
+tenant: livefire
+poolName: VCF91VKS-FastTrack-v5       # matches the template name, same convention as the other pools
+description: ""
+templates:
+  - name: VCF91VKS-FastTrack-v5
+    catalog: CM3-EDUPROD-DGC
+ovdcs:
+  - lvn3-vcd2-eduprod-r-ovdc8
+  - lvn3-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd1-eduprod-r-ovdc3
+  - lvn9-vcd1-eduprod-r-ovdc12
+  - lvn9-vcd2-eduprod-r-ovdc6
+  - lvn9-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd2-eduprod-r-ovdc8
+  - lvn9-vcd2-eduprod-r-ovdc13
+refillAt: 0                         # DECIDED 0 (no prepops for now)
+fillUp: 0                           # DECIDED 0
+prepops: 0                          # DECIDED 0
+perOvdc: {}
+enabled: true
+explicitlyReadyPrepops: false
+# ---- creation record ----
+status: created                      # created 2026-10-09 via flows/create_pool.py --execute (pty-driven); confirmed listed via --browse
+createdOn: 2026-10-09
+source: manual
+createdVia: flows/create_pool.py --execute (List View modal fix; see docs/deployment-pool.runbook.md)
+createdRows: "ALL rows offered by the Add Lab Templates dialog (Select All); intended = the 8 ovdcs above; not individually verified yet"
+# ---- update section (applied by flows/edit_pool.py AFTER create) ----
+update:
+  initialConsoleVm: console           # matches the other pools' convention; verify once the pool/VMs exist

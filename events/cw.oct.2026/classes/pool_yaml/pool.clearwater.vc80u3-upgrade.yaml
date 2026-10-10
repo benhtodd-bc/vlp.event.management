@@ -1,0 +1,36 @@
+# Clearwater deployment pool definition (read by scripts/vlp_pool.py; flows/create_pool.py, flows/edit_pool.py).
+# CREATE = name/description/templates (primary only) below. UPDATE = everything after create (see `update:` at the bottom).
+# Values in "<...>" are undecided and BLOCK any write until replaced. Preflight/dry-run tolerates them.
+# Runbook: docs/deployment-pool.runbook.md
+# Pool rows need the template shadowed in each OVDC below: classes/shadow_yaml/shadow.clearwater.vc80u3-upgrade.yaml, docs/shadowing.runbook.md
+# Shadow status as of 2026-10-09: all 8 OVDCs read type=deploying (not yet complete) via the CloudShadow API.
+tenant: livefire                      # eduprod is cloud capacity, not the tenant
+poolName: VC80U3-to-VCF911-Upgrade-Clearwater-Rev2   # matches the template name, same convention as the VCF522 pool
+description: ""
+templates:                            # AG p100: ONE primary template at create; add more later via Edit Lab Templates
+  - name: VC80U3-to-VCF911-Upgrade-Clearwater-Rev2
+    catalog: CM3-EDUPROD-DGC
+ovdcs:                                # CLAUDE.md / env OVDCS; each yields a "template - ovdc" entry (AG p102; API p66)
+  - lvn3-vcd2-eduprod-r-ovdc8
+  - lvn3-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd1-eduprod-r-ovdc3
+  - lvn9-vcd1-eduprod-r-ovdc12
+  - lvn9-vcd2-eduprod-r-ovdc6
+  - lvn9-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd2-eduprod-r-ovdc8
+  - lvn9-vcd2-eduprod-r-ovdc13
+refillAt: 0                         # DECIDED 0 (no prepops for now)
+fillUp: 0                           # DECIDED 0
+prepops: 0                          # DECIDED 0
+perOvdc: {}
+enabled: true
+explicitlyReadyPrepops: false
+# ---- creation record ----
+status: created                      # created 2026-10-09 via flows/create_pool.py --execute (pty-driven); confirmed listed via --browse
+createdOn: 2026-10-09
+source: manual
+createdVia: flows/create_pool.py --execute (List View modal fix; see docs/deployment-pool.runbook.md)
+createdRows: "ALL rows offered by the Add Lab Templates dialog (Select All); intended = the 8 ovdcs above; not individually verified yet"
+# ---- update section (applied by flows/edit_pool.py AFTER create) ----
+update:
+  initialConsoleVm: console           # matches the VCF522 pool's convention; verify once the pool/VMs exist

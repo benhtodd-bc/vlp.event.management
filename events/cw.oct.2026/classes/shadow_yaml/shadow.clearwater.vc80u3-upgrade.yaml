@@ -1,0 +1,20 @@
+# Clearwater cloud shadow definition (read by scripts/vlp_shadow.py; flows/shadowing.py).
+# A shadow = copy of the template in another org VDC so deployments there need not copy it first (AG p217-218).
+# Runbook: docs/shadowing.runbook.md
+tenant: livefire
+templateName: VC80U3-to-VCF911-Upgrade-Clearwater-Rev2
+catalog: CM3-EDUPROD-DGC            # same catalog as the other Clearwater templates; confirmed via CloudShadow API 2026-10-09 (template now visible, available=true, no shadow yet)
+ovdcs:                              # the 8 Clearwater OVDCs (CLAUDE.md OVDCS)
+  - lvn3-vcd2-eduprod-r-ovdc8
+  - lvn3-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd1-eduprod-r-ovdc3
+  - lvn9-vcd1-eduprod-r-ovdc12
+  - lvn9-vcd2-eduprod-r-ovdc6
+  - lvn9-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd2-eduprod-r-ovdc8
+  - lvn9-vcd2-eduprod-r-ovdc13
+poolYaml: classes/pool_yaml/pool.clearwater.vcf522-upgrade.yaml   # reused only as the event's valid-OVDC list for the guard check; no pool exists yet for this template
+status: requested                    # all 8 Ok clicks succeeded via flows/shadowing.py --execute (driven through a real pty; see docs/shadowing.runbook.md)
+requestedOn: 2026-10-09
+source: manual                       # driven by this flow run, not a recorded UI session
+verified: false                      # REVERTED 2026-10-10: briefly marked verified:true off CloudShadow API's orgVdcs[].type=="shadows", but that field is catalog/cloud-scoped, not per-template -- VCF91-AIRI-FastTrack-Rev4 (never shadowed) and an unrelated template on the same catalog both read the identical "shadows" OVDC set as the confirmed VCF522 template. See docs/shadowing.runbook.md section 3 "Known limitation" before trusting any CloudShadow-API-based verification. Needs a live UI chevron-expand check (or vCD ground truth) to actually verify.

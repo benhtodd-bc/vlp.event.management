@@ -1,0 +1,50 @@
+# Clearwater LAB definition (read by scripts/vlp_lab.py; flows/lab.py). Runbook: docs/lab.runbook.md.
+# A lab = metadata + ONE deployment pool + manual + resources (AG p106). The class only references the lab SKU.
+# Distinct from lab.clearwater.vcf91vks.yaml: same pool/template (VCF522-Upgrade-VCF9.1-REV1), different
+# manual and intended class (VCF Upgrade Fast Track, not VKS Fast Track).
+tenant: livefire
+
+# ---- identity (Create Lab form, Lab Details tab; AG p106) ----
+sku: Clearwater-VCF522-Upgrade         # DECIDED 2026-10-09
+name: VCF Upgrade Fast Track - VCF5.2.x to VCF9.1.x   # DECIDED 2026-10-09
+shortDescription: ""                   # DECIDED 2026-10-09: left empty
+description: ""                        # DECIDED 2026-10-09: left empty
+
+# ---- lab-owned objects (pool already exists; see lab.clearwater.vcf91vks.yaml for its creation record) ----
+deploymentPool: VCF522-Upgrade-VCF9.1-REV1   # created 2026-10-08; shared with the VKS lab
+initialConsoleVm: console              # set 2026-10-08 on the pool
+manual: VCF5.2.x-to-VCF9.1.x            # already exists in VLP (instructor-maintained); just attach, do not create
+resources: []
+catalogs: []                            # DECIDED 2026-10-09 (live): VLP defaulted this to 'All Labs' on create; removed to leave empty, per explicit user review
+saasConsoles: []
+
+# ---- VM Configuration tab (AG p111-112) ----
+vmConfiguration:
+  useFromDeploymentPool: true
+
+# ---- availability (Lab Configuration page; AG p107) ----
+enabled: false                         # DECIDED 2026-10-09: false for now
+publicVisible: false
+newItem: false
+
+# ---- time (Create Lab form; AG p106, p108) ----
+timeAllottedHours: 48
+validPeriodHours: 48
+
+# ---- runtime limits ----
+runtime:
+  endAllowed: true
+  exitAllowed: true
+  resetAllowed: true                   # DECIDED 2026-10-09 (live): turned on, overriding the false default
+  powerOperation: none                 # DECIDED 2026-10-09 (live): VLP defaulted this to 'Power off vApp on Exit' on create; corrected to None
+# shareable: false                     # not modeled above; VLP defaulted this to true on first save (unexplained); corrected to false live 2026-10-09
+  concurrentUsageLimit: 0
+  undeployAfter: 0
+  prepopEnabled: true
+
+# ---- state record (not an input to VLP) ----
+status: created                        # created 2026-10-09, driven live field-by-field (no verified automation existed; flows/lab.py is a skeleton)
+createdOn: 2026-10-09
+source: manual
+verified: true                         # verified via fresh-reload checks of every Update Settings field, and Update Content/Vm Metadata tabs (no changes needed there)
+verifiedOn: 2026-10-09

@@ -1,0 +1,9 @@
+# Raw codegen output may contain typed credentials. Never commit.
+raw/
+artifacts/
+*.storage.json
+storage_state*.json
+*.har
+*.zip
+.state/
+*.state.json

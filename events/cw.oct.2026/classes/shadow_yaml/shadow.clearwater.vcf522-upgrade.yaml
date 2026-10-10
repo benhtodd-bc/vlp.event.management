@@ -1,0 +1,20 @@
+# Clearwater cloud shadow definition (read by scripts/vlp_shadow.py; flows/shadowing.py).
+# A shadow = copy of the template in another org VDC so deployments there need not copy it first (AG p217-218).
+# Runbook: docs/shadowing.runbook.md. Source recording: recordings/shadowing.py (live livefire write, 2026-10-08).
+tenant: livefire
+templateName: VCF522-Upgrade-VCF9.1-REV1
+catalog: CM3-EDUPROD-DGC            # as in the pool YAML; the Cloud Shadow page row read 'CM3-EDU-PROD-DGC' in the recording (UNVERIFIED which is right; likely a display/typo difference)
+ovdcs:                              # the 8 Clearwater OVDCs (CLAUDE.md OVDCS; same list as the pool YAML)
+  - lvn3-vcd2-eduprod-r-ovdc8
+  - lvn3-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd1-eduprod-r-ovdc3
+  - lvn9-vcd1-eduprod-r-ovdc12
+  - lvn9-vcd2-eduprod-r-ovdc6
+  - lvn9-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd2-eduprod-r-ovdc8
+  - lvn9-vcd2-eduprod-r-ovdc13
+poolYaml: classes/pool_yaml/pool.clearwater.vcf522-upgrade.yaml   # pool rows need a shadow in each of these OVDCs
+status: confirmed                   # confirmed via GET /api/admin/CloudShadow 2026-10-09: all 8 OVDCs show type=shadows, shadowEnabled=true
+requestedOn: 2026-10-08
+source: recorded                    # recordings/shadowing.py; OVDC NAMES are not in the recording (only row ids/cloud-level rows): counts 2/2/4 per cloud and click order match the list above, names are inferred
+verified: true                      # verifiedOn: 2026-10-09, via CloudShadow API (read-only), not the UI checklist

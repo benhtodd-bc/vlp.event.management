@@ -1,0 +1,54 @@
+# Clearwater test class. Values in "<...>" are unknown and BLOCK generation until replaced.
+tenant: livefire                      # eduprod is cloud capacity, not the tenant
+className: VCF 9.1 VKS Fast Track
+classSku:                             # blank -> derived: vcf-9.1-vks-fast-track
+description: VCF 9.1 VKS Fast Track
+notes: ""
+enabled: false                        # DECIDED 2026-10-09: false for now
+timezone: America/New_York            # IANA only; abbreviations (EST/PST) are rejected
+schedule:
+  startDate: "2026-10-13"
+  startTime: "08:00"
+  endDate: "2026-10-15"
+  endTime: "18:00"
+labs:
+  - sku: Clearwater-VCF91-VKS-FastTrack   # required; the lab SKU, not the template name. Equals `sku` in labDefinition (decided by user)
+    templateName: VCF91VKS-FastTrack-v5   # CORRECTED 2026-10-09: VKS gets its own pool on its real template, not VCF522
+    displayName: VCF 9.1 VKS Fast Track   # human reference only (never attaches on upload); equals the lab `name` in labDefinition
+    labDefinition: classes/lab_yaml/lab.clearwater.vcf91vks.yaml   # lab to create first (docs/lab.runbook.md, runbook step 7); not a class CSV column
+    # Lab wiring: manual VCF91VKS_FastTrack (published), resource VCF91VKS_FastTrack_PDF (verified 2026-10-08),
+    # SaaS consoles none. Pool VCF91VKS-FastTrack-v5 and the lab itself still need to be created.
+numberOfSeats: 23                     # DECIDED 2026-10-09: rosters/roster.VKS.Track.csv row count
+instructors:
+  - dhiraj.sharma@broadcom.com
+owners:
+  - benjamin.todd@broadcom.com        # DECIDED 2026-10-09
+students:
+  source: rosters/roster.VKS.Track.csv   # DECIDED 2026-10-09: invites from 'VKS Track'; path relative to event root
+  includeInClassCsv: true
+studentTokenMode: autoAdd           # students join via registration URL
+sendEmails: false                     # no emails sent unless true (or --send-emails)
+provisioning:
+  preProvisionEnabled: true
+  preProvisionPeriod: "0.04:00:00"    # DECIDED 2026-10-09: 4 hours before start
+  skipProvisioning: false
+preferredCloudLocation: ""
+# Lab-owned objects (NOT class fields; never emitted to the class CSV). They are
+# created in the VLP UI and attached to the LAB; the class only references the lab SKU.
+labPrereqs:
+  manualProject: VCF91VKS_FastTrack     # Content Engine project = student-facing manual (zip import)
+  manualZip: lab.manuals/VKSFT91_vSphere Kubernetes Service_ Fast Track [v9.1].zip
+  resourceNames:                        # lab resources = downloads shown to students
+    - VCF91VKS_FastTrack_PDF
+  pdf: lab.manuals/VCF91VKS_FastTrack.pdf
+  poolTemplate: VCF91VKS-FastTrack-v5      # CORRECTED 2026-10-09: VKS's own template, not VCF522
+  poolCatalog: CM3-EDUPROD-DGC             # catalog holding poolTemplate
+  poolDefinition: classes/pool_yaml/pool.clearwater.vcf91vks.yaml
+  deploymentPool: VCF91VKS-FastTrack-v5     # created 2026-10-09 (classes/pool_yaml/pool.clearwater.vcf91vks.yaml)
+  saasConsoles: []                      # per-lab; none identified yet
+capacity:                             # preflight only; not emitted to the class CSV
+  ovdcs: []
+  vappTemplates: []
+videoConference:
+  type: ""
+  meetingId: ""                       # no password is ever stored here

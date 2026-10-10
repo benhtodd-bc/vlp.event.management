@@ -1,0 +1,2 @@
+email,firstName,lastName,company,verified,permission,password,language,location,roleNames
+<email>,<firstName>,<lastName>,<companyName>,TRUE,1,VMware1!,en,AMER,ROLE_STUDENT

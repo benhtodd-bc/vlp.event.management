@@ -1,0 +1,47 @@
+# Clearwater LAB definition (read by scripts/vlp_lab.py; flows/lab.py). Runbook: docs/lab.runbook.md.
+# A lab = metadata + ONE deployment pool + manual + resources (AG p106). The class only references the lab SKU.
+tenant: livefire                       # eduprod is cloud capacity, not the tenant
+
+# ---- identity (Create Lab form, Lab Details tab; AG p106) ----
+sku: Clearwater-VC80U3-Upgrade         # DECIDED 2026-10-09
+name: VCF Upgrade Fast Track - vSphere to VVF   # DECIDED 2026-10-09
+shortDescription: ""                   # DECIDED 2026-10-09: left empty
+description: ""                        # DECIDED 2026-10-09: left empty
+
+# ---- lab-owned objects ----
+deploymentPool: VC80U3-to-VCF911-Upgrade-Clearwater-Rev2   # created 2026-10-09 (classes/pool_yaml/pool.clearwater.vc80u3-upgrade.yaml)
+initialConsoleVm: console              # matches the pool's planned initial console; verify once the pool exists
+manual: vSphere-to-VVF-Upgrade          # already exists in VLP (instructor-maintained); just attach, do not create
+resources: []                          # none identified for this lab yet
+catalogs: []                           # DECIDED: none
+saasConsoles: []                       # none for this lab
+
+# ---- VM Configuration tab (AG p111-112) ----
+vmConfiguration:
+  useFromDeploymentPool: true
+
+# ---- availability (Lab Configuration page; AG p107) ----
+enabled: false                         # DECIDED 2026-10-09: false for now
+publicVisible: false
+newItem: false
+
+# ---- time (Create Lab form; AG p106, p108) ----
+timeAllottedHours: 48                  # matches the VKS lab convention (2 days); revisit if the Upgrade lab needs a different duration
+validPeriodHours: 48
+
+# ---- runtime limits ----
+runtime:
+  endAllowed: true
+  exitAllowed: true
+  resetAllowed: false
+  powerOperation: none
+  concurrentUsageLimit: 0
+  undeployAfter: 0
+  prepopEnabled: true
+
+# ---- state record (not an input to VLP) ----
+status: planned                        # planned | created
+createdOn:
+source: manual
+verified: false
+verifiedOn:

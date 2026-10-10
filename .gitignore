@@ -1,0 +1,19 @@
+.env
+
+# Playwright recording / automation (vlp-admin)
+recordings/raw/
+recordings/artifacts/
+.playwright-profile/
+*.storage.json
+storage_state*.json
+state.json
+recordings/.state/
+*.state.json
+
+# Generated invite CSVs embed the initial student password
+student.invites/
+
+# OS / editor / Python noise
+.DS_Store
+__pycache__/
+.vscode/markdown-live-*.json

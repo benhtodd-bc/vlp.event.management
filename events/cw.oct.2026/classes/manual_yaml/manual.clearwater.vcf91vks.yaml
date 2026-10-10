@@ -1,0 +1,9 @@
+# Clearwater manual project definition (read by scripts/vlp_manual.py; flows/manual_project.py).
+# Recorded live in tenant livefire on 2026-10-08 (recordings/manual_project.py): created, zip uploaded,
+# promoted to draft, published. The flow is idempotent: it refuses to create a project that already exists.
+tenant: livefire
+projectName: VCF91VKS_FastTrack
+zipPath: lab.manuals/VKSFT91_vSphere Kubernetes Service_ Fast Track [v9.1].zip   # project-relative
+status: published          # one of: planned, imported, draft, published (state in VLP)
+publishedOn: 2026-10-08
+source: recorded           # recorded | manual | api

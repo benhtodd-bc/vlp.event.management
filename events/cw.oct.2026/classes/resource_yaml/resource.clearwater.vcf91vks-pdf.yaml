@@ -1,0 +1,16 @@
+# Clearwater lab resource definition (read by scripts/vlp_resource.py; flows/lab_resource.py).
+# Recorded live in tenant livefire on 2026-10-08 (recordings/lab_resource.py): Lab Management > Lab Resources >
+# Create New, name, upload PDF, Create Lab Resource. The recording ends at the create click (no list view recorded).
+# 2026-10-08: the user confirmed in the admin UI that the resource exists in livefire and points to storageUrl below
+# (user-reported, not recorded). storageUrl is an identifier, not a secret, but its random-looking UUID prefix should be
+# treated as an internal identifier: do not publish it to students beyond the lab.
+# The flow is idempotent: it refuses to create a resource whose name is already listed.
+tenant: livefire
+resourceName: VCF91VKS_FastTrack_PDF
+filePath: lab.manuals/VCF91VKS_FastTrack.pdf   # project-relative; the recording used the bare file name
+status: created            # one of: planned, created (state in VLP)
+createdOn: 2026-10-08
+source: recorded           # recorded | manual | api
+verified: true             # a human confirmed the resource in the UI (user-reported)
+verifiedOn: 2026-10-08
+storageUrl: https://labplatform.broadcom.com/content/api/storage/file/livefire/labResources/b8e9a393-fdd8-4425-96ca-fb286fb5c93a---VCF91VKS_FastTrack.pdf

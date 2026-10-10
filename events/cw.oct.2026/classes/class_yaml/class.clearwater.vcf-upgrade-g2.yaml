@@ -1,0 +1,45 @@
+# Clearwater class definition (read by scripts/vlp_class.py; create_class_bulk_csv.py / create_vlp_class_ui.py).
+# VCF Upgrade Fast Track, cohort G2 (Oct 15-16). Offers both Upgrade labs (VC80U3 and VCF522).
+tenant: livefire
+className: VCF Upgrade Fast Track - G2
+classSku:                             # blank -> derived
+description: VCF Upgrade Fast Track - G2
+notes: ""
+enabled: false                        # DECIDED 2026-10-09: false for now
+timezone: America/New_York
+schedule:
+  startDate: "2026-10-15"
+  startTime: "08:00"
+  endDate: "2026-10-16"
+  endTime: "18:00"
+labs:
+  - sku: Clearwater-VC80U3-Upgrade
+    templateName: VC80U3-to-VCF911-Upgrade-Clearwater-Rev2
+    displayName: VCF Upgrade Fast Track - vSphere to VVF
+    labDefinition: classes/lab_yaml/lab.clearwater.vc80u3-upgrade.yaml   # not created in VLP yet
+  - sku: Clearwater-VCF522-Upgrade
+    templateName: VCF522-Upgrade-VCF9.1-REV1
+    displayName: VCF Upgrade Fast Track - VCF5.2.x to VCF9.1.x
+    labDefinition: classes/lab_yaml/lab.clearwater.vcf522-upgrade.yaml   # not created in VLP yet
+numberOfSeats: 43                     # DECIDED 2026-10-09: rosters/roster.VCF.Track.G2.csv row count
+instructors:
+  - alasdair.carnie@broadcom.com
+  - andy.beltz@broadcom.com
+owners:
+  - benjamin.todd@broadcom.com        # DECIDED 2026-10-09
+students:
+  source: rosters/roster.VCF.Track.G2.csv   # DECIDED 2026-10-09: invites from 'VCF Track G2'
+  includeInClassCsv: true
+studentTokenMode: autoAdd
+sendEmails: false
+provisioning:
+  preProvisionEnabled: true
+  preProvisionPeriod: "0.04:00:00"    # DECIDED 2026-10-09: 4 hours before start
+  skipProvisioning: false
+preferredCloudLocation: ""
+capacity:
+  ovdcs: []
+  vappTemplates: []
+videoConference:
+  type: ""
+  meetingId: ""
