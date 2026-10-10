@@ -28,39 +28,17 @@ The OVDC names are NOT in the recording (rows were clicked by grid row id or `.f
 
 ## 3. Checking status and progress
 
-- UI (AG p217-218): `Cloud Management > Cloud Shadows`: cloud org, availability and replica status per template; arrow next to the template for detail. `Refresh Shadow Information` runs a shadow update for the selected clouds (wording of the guide; it does not say it creates or deletes shadows).
-- Read-only automation: `python3 ~/.claude/skills/vlp-admin/scripts/flows/shadowing.py --browse` (expands each cloud row, prints one line per OVDC; selectors UNVERIFIED).
-- API (API p211-213, "CloudShadow API"): `GET /api/admin/CloudShadow?tenant=livefire&cloudOrgs=<display names>`. **The doc describes a schema that does not match the live response** (see KNOWN LIMITATION below) — treat the written spec (`orgVdcs`/`vAppTemplates[].shadows/shares/deploying/primary`) as aspirational, not what you'll actually get back.
+Fastest check (read-only, API): from the event folder,
+`python3 ~/.claude/skills/vlp-admin/scripts/check_shadow.py --templates <t1,t2,...> --ovdcs <o1,o2,...>`
+(`--ovdcs` defaults to `OVDCS` in `.env`). Prints `SHADOWED` / `NOT SHADOWED` / `available to shadow` per template per target OVDC; exit 0 only if every target is shadowed.
+
+How the data is laid out (API and UI agree; verified against the live page 2026-10-10):
+
+- API: `GET /api/admin/CloudShadow?tenant=&cloudOrgs=` returns one row per (template, cloud org). Each `orgVdcs[]` entry has `orgVdcName`, `type` (`master` = primary, `shadows` = shadow exists, absent = no shadow), `shadowEnabled` and `available` (true = can be shadowed). Match on `orgVdcName`.
+- UI (`Cloud Management > Cloud Shadow`): filter by template, then expand the chevron of each cloud org that holds target OVDCs (different orgs hold different targets). The table's **Type** column is `primary` / `shadow` / `undeployed`; the Availability icon is a dark cloud with a green dot when a shadow exists and an outlined cloud when one can be made. The Replicas value (`n/3`) is not shadow state.
 - Cloud Tasks (`Cloud Management > Cloud Tasks`, UNVERIFIED path) is where to look for failed copy tasks.
 - Large templates take time; do not re-click while a copy is in progress (the flow refuses to re-shadow).
-
-### KNOWN LIMITATION (found 2026-10-10): the CloudShadow API cannot tell you per-template shadow status
-
-The live `GET /api/admin/CloudShadow` response is shaped as a flat list of (template × cloud) rows, each
-carrying its own `orgVdcs[]` with a `type` field (`master`/`shadows`/absent). **This `type` field is scoped
-to the (cloud, catalog) pair, not to the individual template.** Proof: querying three templates that all sit
-in catalog `CM3-EDUPROD-DGC` — `VCF522-Upgrade-VCF9.1-REV1` (really shadowed, user-confirmed in the UI),
-`VCF91-AIRI-FastTrack-Rev4` (never shadowed), and `VCF522-June-2027-PWDexpiration-Rev4-Jun05` (an unrelated
-template nobody ever touched) — all three returned the *identical* set of OVDCs marked `type=shadows,
-shadowEnabled=true`. A template that was never shadowed reads exactly like one that was.
-
-This directly contradicts the documented schema (API p211-213), which says each `vAppTemplates[]` entry
-should carry its own `shadows`/`shares`/`deploying`/`primary` arrays of VDC URNs — a genuinely per-template
-signal. The live server does not return that shape via `vlp_api.VlpClient` as tested; either the real schema
-has changed since the doc was written, or that data exists under a parameter/field not yet found.
-
-Consequence: **do not use `orgVdcs[].type == "shadows"` from this API to mark any shadow yaml
-`verified: true`.** It happened twice (`VC80U3-to-VCF911-Upgrade-Clearwater-Rev2` and
-`VCF91-AIRI-FastTrack-Rev4` were both wrongly marked confirmed this way on 2026-10-10) and both were
-retracted. The only field that varies per-template at all is `replicasCount`/`cloudsForReplicasCount`
-("ALL n/3" in the UI) — its exact meaning is still unconfirmed (it correlates with "newly added to the
-catalog" rather than shadow completion; see git history on this file for the earlier, also-wrong,
-"n/3 = copy progress" theory that was retracted the same day). Until a genuinely per-template signal is
-found, the only trustworthy source is a human reading the expanded chevron row in the live UI for that
-specific searched template, or asking VLP support / checking vCD directly. `--browse`'s DOM-scrape approach
-is inherently just a slower path to the same human read-the-grid check — it is not meaningfully more
-automated-trustworthy than the UI it scrapes, since no live code path has confirmed it isn't itself
-exposed to the same cloud-wide aggregation this section debunks.
+- `flows/shadowing.py --browse` prints the row text per OVDC; read the Type word in it, and ignore its `existing` label.
 
 ## 4. Running the flow (existence-checked)
 
