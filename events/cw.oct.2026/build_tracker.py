@@ -186,6 +186,7 @@ def todo_list(tracker_tables: dict, snap: dict) -> list[dict]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-accounts", action="store_true", help="skip the per-student VLP account lookups")
+    ap.add_argument("--site", action="store_true", help="build site/index.html for the Apps Script web app (no local links, no console panel)")
     a = ap.parse_args()
     event = load_event()
     classes = load_classes()
@@ -193,11 +194,13 @@ def main() -> int:
     snap = vlp_snapshot(event, classes, not a.no_accounts)
     data = {"generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "event": event,
             "classes": classes, "tracker": tracker_tables, "todo": todo_list(tracker_tables, snap), "snap": snap,
-            "adminBase": ADMIN_BASE, "adminLinks": ADMIN_LINKS}
+            "adminBase": ADMIN_BASE, "adminLinks": ADMIN_LINKS, "site": a.site}
     html = (HERE / "tracker.template.html").read_text()
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
-    (HERE / "cw.oct.2026.tracker.html").write_text(html.replace("__DATA__", payload))
-    print(f"wrote cw.oct.2026.tracker.html  (VLP read: {'ok' if snap['ok'] else 'FAILED - ' + snap.get('error', '')})")
+    out = HERE / "site" / "index.html" if a.site else HERE / "cw.oct.2026.tracker.html"
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(html.replace("__DATA__", payload))
+    print(f"wrote {out.relative_to(HERE)}  (VLP read: {'ok' if snap['ok'] else 'FAILED - ' + snap.get('error', '')})")
     return 0
 
 

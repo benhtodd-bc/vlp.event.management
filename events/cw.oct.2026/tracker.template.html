@@ -59,6 +59,7 @@ const fmt = (iso, tz) => new Intl.DateTimeFormat("en-US",{timeZone:tz,weekday:"s
 const when = (iso) => D.event.timezones.map(tz => `${fmt(iso,tz)}`).join(" &nbsp;|&nbsp; ");
 const admin = (p) => D.adminBase + p;
 const rel = (iso) => { const s = (new Date(iso) - Date.now())/1000, a = Math.abs(s); const d = Math.floor(a/86400), h = Math.floor(a%86400/3600), m = Math.floor(a%3600/60); return (s<0?"started ":"in ") + (d?d+"d ":"") + h+"h "+m+"m" + (s<0?" ago":""); };
+const SITE = !!D.site;
 const snap = D.snap, pools = snap.pools || [], classesFound = snap.classes_found || {};
 const LABEL = {done:"done",progress:"in progress",todo:"not started",blocked:"blocked",unknown:"unverified"};
 const statusChip = (st, v) => chip(st, String(v).replace(/^(✅|🔄|⬜|🚫|❓)\s*/, "") || LABEL[st]);
@@ -105,7 +106,7 @@ let d0 = `<h2>Readiness</h2><div class="cards">
  ${card(`${classesInVlp}/${classTotal}`, "classes created in VLP", cls(classesInVlp,classTotal))}
  ${haveAcct ? card(`${acctOk}/${rosterTotal}`, "roster accounts exist in VLP (invites loaded)", cls(acctOk,rosterTotal)) : ""}
 </div>`;
-d0 += `<h2>What's left (in build order)</h2>` + (D.todo.length ? table(["Step","For","What","Status / detail","Runbook"], D.todo.map(t => [t.step, `<b>${esc(t.area)}</b>`, esc(t.what), statusChip(t.status, t.detail), t.runbook ? `<a href="${esc(t.runbook)}">${esc(t.runbook.replace("docs/",""))}</a>` : ""])) : "<p>Nothing outstanding in the tracker.</p>");
+d0 += `<h2>What's left (in build order)</h2>` + (D.todo.length ? table(["Step","For","What","Status / detail","Runbook"], D.todo.map(t => [t.step, `<b>${esc(t.area)}</b>`, esc(t.what), statusChip(t.status, t.detail), t.runbook ? (SITE ? esc(t.runbook.replace("docs/","")) : `<a href="${esc(t.runbook)}">${esc(t.runbook.replace("docs/",""))}</a>`) : ""])) : "<p>Nothing outstanding in the tracker.</p>");
 d0 += `<h2>Labs (build steps 1–5)</h2>` + trackerHtml(trackerTable("Labs"));
 const orgOf = (o) => o.replace(/-ovdc\d+$/, "");
 const ovdcNum = (o) => parseInt((o.match(/ovdc(\d+)$/) || [0, 0])[1], 10);
@@ -131,7 +132,7 @@ d0 += `<h2>Event facts</h2>` +
   table(["Item","Value"], [["Event", esc(D.event.name)],["Location", esc(D.event.location)],["Event time zone", esc(D.event.event_tz)],["Time zones", esc(D.event.timezones.map(t => (tzShort[t]||t)+" ("+t+")").join(", "))],["Cloud (EPC)", esc(D.event.epc.epc.join(", "))],["Source catalog", esc(D.event.epc.source_catalog.join(", "))],["Target catalog", esc(D.event.epc.target_catalog.join(", "))],["Target OVDCs", esc(D.event.epc.ovdcs.join(", "))],["Templates", esc(D.event.epc.templates_to_use.join(", "))]]) +
   `<h2>Sessions → lab template / manual</h2>` + table(["Session","Lab template(s) / manual(s)"], D.event.sessions.map(r => [`<b>${esc(r["Session Title"])}</b>`, esc(r["LAB template(s)/manual(s)"])])) +
   `<h2>ATE team</h2>` + table(["Name","Email","Role","Assignment"], D.event.team.map(r => [esc(r.Name), `<a href="mailto:${esc(r.Email)}">${esc(r.Email)}</a>`, esc(r.Role), esc(r.Assignment)]));
-d0 += `<h2>Runbooks</h2><div class="links">${["class-build","deployment-pool","shadowing","lab","lab-resource","manual-project"].map(n => `<a href="docs/${n}.runbook.md">${n}.runbook</a>`).join("")}<a href="docs/dry-run.ui.checklist.md">dry-run.ui.checklist</a><a href="docs/needed-values.md">needed-values</a><a href="lab-management.tracker.md">lab-management.tracker.md</a><a href="cw.oct.2026.md">cw.oct.2026.md</a></div>`;
+if (!SITE) d0 += `<h2>Runbooks</h2><div class="links">${["class-build","deployment-pool","shadowing","lab","lab-resource","manual-project"].map(n => `<a href="docs/${n}.runbook.md">${n}.runbook</a>`).join("")}<a href="docs/dry-run.ui.checklist.md">dry-run.ui.checklist</a><a href="docs/needed-values.md">needed-values</a><a href="lab-management.tracker.md">lab-management.tracker.md</a><a href="cw.oct.2026.md">cw.oct.2026.md</a></div>`;
 $("#day0").innerHTML = d0;
 
 function sessionCard(c) {
@@ -154,8 +155,8 @@ let d2 = (d2sched.length ? `<h2>Day 2 schedule</h2>` + table(["When (ET | PT | S
    `${p.refillAt} / ${p.fillUp}`, (p.labs||[]).length ? esc(p.labs.join("; ")) : chip("todo","none")])) : "<p class='mute'>No VLP data.</p>");
 d2 += `<h2>Find a student</h2><input type="search" id="q" placeholder="Name or email…" autocomplete="off"><div id="results" style="margin-top:12px"></div>
 <h2>Sessions</h2><div class="sessions">${D.classes.map(sessionCard).join("")}</div>
-<h2>Console panel</h2><p class="mute small">Embeds an admin page here. If the panel stays blank, VLP is refusing to be framed — use the link above to open it in a tab instead.</p>
-<div class="links" style="margin-bottom:10px">${D.adminLinks.slice(0,6).map(([l,p]) => `<button data-frame="${admin(p)}">${esc(l)}</button>`).join("")}</div><iframe id="panel" title="VLP admin"></iframe>`;
+${SITE ? "" : `<h2>Console panel</h2><p class="mute small">Embeds an admin page here. If the panel stays blank, VLP is refusing to be framed — use the link above to open it in a tab instead.</p>
+<div class="links" style="margin-bottom:10px">${D.adminLinks.slice(0,6).map(([l,p]) => `<button data-frame="${admin(p)}">${esc(l)}</button>`).join("")}</div><iframe id="panel" title="VLP admin"></iframe>`}`;
 $("#day2").innerHTML = d2;
 
 const allStudents = D.classes.flatMap(c => c.roster.map(s => ({...s, cls: c})));
@@ -171,10 +172,10 @@ function lookup() {
     snap.accounts && s.email in snap.accounts ? (snap.accounts[s.email] ? chip("done","exists") : chip("blocked","not found")) : chip("none","unknown")])) : (staffHits.length ? "" : "<span class='mute'>No match on any roster or the ATE team.</span>"));
 }
 $("#q").addEventListener("input", lookup); lookup();
-document.querySelectorAll("[data-frame]").forEach(b => b.addEventListener("click", () => { $("#panel").style.display = "block"; $("#panel").src = b.dataset.frame; }));
+if (!SITE) document.querySelectorAll("[data-frame]").forEach(b => b.addEventListener("click", () => { $("#panel").style.display = "block"; $("#panel").src = b.dataset.frame; }));
 
 // ---------- tabs ----------
-function show(t) { document.querySelectorAll(".tab").forEach(e => e.classList.toggle("on", e.id === t)); document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === t)); history.replaceState(null, "", "#" + t); }
+function show(t) { document.querySelectorAll(".tab").forEach(e => e.classList.toggle("on", e.id === t)); document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === t)); try { history.replaceState(null, "", "#" + t); } catch (e) {} }
 document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
 show(location.hash === "#day2" ? "day2" : "day0");
 </script>

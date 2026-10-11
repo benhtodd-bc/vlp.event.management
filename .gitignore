@@ -17,3 +17,7 @@ student.invites/
 .DS_Store
 __pycache__/
 .vscode/markdown-live-*.json
+
+# Apps Script site: generated page and clasp project id stay local
+events/cw.oct.2026/site/index.html
+events/cw.oct.2026/site/.clasp.json
