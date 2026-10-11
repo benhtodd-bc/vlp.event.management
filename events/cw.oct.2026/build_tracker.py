@@ -88,7 +88,11 @@ def load_event() -> dict:
     for key in ("epc", "ovdcs", "source_catalog", "target_catalog", "templates_to_use"):
         m = re.search(rf"^{key}:\s*\[(.*)\]", text, re.M)
         epc[key] = [x.strip() for x in m.group(1).split(",")] if m else []
-    return {"name": fm["event"], "location": fm["location"], "event_tz": fm["event_tz"],
+    day2 = []
+    for r in next((v for k, v in tables.items() if k.startswith("Day 2 schedule")), []):
+        m = re.match(r"(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) (\S+)$", r["Time"])
+        day2.append({"at": utc_iso(m.group(1), m.group(2), m.group(3)) if m else None, "action": r["Action"], "class": r["Class"]})
+    return {"name": fm["event"], "day2": day2, "location": fm["location"], "event_tz": fm["event_tz"],
             "timezones": [t.split("#")[0].strip() for t in fm["timezones"]],
             "sessions": tables.get("Sessions for this event", []), "team": tables.get("ATE Team", []), "epc": epc}
 

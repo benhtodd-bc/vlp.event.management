@@ -146,7 +146,8 @@ function sessionCard(c) {
 }
 
 // ---------- Day 2 ----------
-let d2 = `<h2>VLP admin console</h2><div class="links">${D.adminLinks.map(([l,p]) => `<a href="${admin(p)}" target="_blank" rel="noopener">${esc(l)}</a>`).join("")}</div>
+const d2sched = (D.event.day2 || []);
+let d2 = (d2sched.length ? `<h2>Day 2 schedule</h2>` + table(["When (ET | PT | Sofia)", "Action", "Class", "Countdown"], d2sched.map(r => [r.at ? when(r.at) : "—", `<b>${esc(r.action)}</b>`, `<a href="${admin("/admin/classes")}" target="_blank" rel="noopener">${esc(r.class)}</a>`, r.at ? esc(rel(r.at)) : ""])) : "") + `<h2>VLP admin console</h2><div class="links">${D.adminLinks.map(([l,p]) => `<a href="${admin(p)}" target="_blank" rel="noopener">${esc(l)}</a>`).join("")}</div>
 <h2>Pool health (snapshot)</h2>` + (pools.length ? table(["Pool","Available","Provisioning","Ready","Errors","Refill / Fill up","Lab attached"], pools.map(p => [
    `<a href="${admin("/admin/deployment-pools")}" target="_blank" rel="noopener"><b>${esc(p.name)}</b></a>`, p.available, p.provisioning, p.ready,
    p.errors ? chip("blocked", p.errors + " error" + (p.errors>1?"s":"")) + (p.errorMsgs.length ? `<div class="small mute">${esc(p.errorMsgs.join("; "))}</div>` : "") : chip("done","0"),

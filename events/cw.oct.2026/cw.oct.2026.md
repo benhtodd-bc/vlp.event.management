@@ -25,6 +25,14 @@ Event project for the October 2026 event in Clearwater, Florida.
 | VCF AIRI Fast Track | 'VCF91-AIRI-FastTrack-Rev4'/'AIRI Fast Track'|
 | VKS Fast Track | 'VCF91VKS-FastTrack-v5'/'VCF91VKS_FastTrack' | 
 
+## Day 2 schedule (Wed Oct 14)
+
+| Time | Action | Class |
+|---|---|---|
+| 2026-10-14 15:00 America/Los_Angeles | Bring up entitlements | VCF AIRI Fast Track - G1 |
+| 2026-10-14 15:00 America/Los_Angeles | Start pre-pops | VCF Upgrade Fast Track - G2 |
+| - | Not touched | VKS Fast Track |
+
 ## Lab manual Sources
 
 - `lab.manuals/` - VCFVKS_FastTrack.(PDF + zip)
