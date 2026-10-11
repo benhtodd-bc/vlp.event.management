@@ -36,4 +36,4 @@ createdVia: flows/create_pool.py --execute (List View modal fix; see docs/deploy
 createdRows: "ALL rows offered by the Add Lab Templates dialog (Select All); intended = the 8 ovdcs above; not individually verified yet"
 # ---- update section (applied by flows/edit_pool.py AFTER create) ----
 update:
-  initialConsoleVm: console           # matches the other pools' convention; verify once the pool/VMs exist
+  initialConsoleVm: Console           # set 2026-10-11 via Update > Edit Vms (Initial console on the VM named Console); re-verified from a fresh session

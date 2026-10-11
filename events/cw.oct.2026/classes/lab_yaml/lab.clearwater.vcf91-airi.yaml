@@ -1,0 +1,54 @@
+# Clearwater LAB definition (read by scripts/vlp_lab.py; flows/lab.py). Runbook: docs/lab.runbook.md (runbook step 7).
+# A lab = metadata + ONE deployment pool + manual + resources (AG p106). The class only references the lab SKU.
+# Values in "<...>" are UNDECIDED and BLOCK any write (strict mode) until replaced; dry-run/tolerant mode reports them.
+# Suggestions (from the sibling export VLP-Admin/vlp.admin/manage_classs/export.of.existing.labs.as.sample.csv) are in comments.
+tenant: livefire                       # eduprod is cloud capacity, not the tenant
+
+# ---- identity (Create Lab form, Lab Details tab; AG p106) ----
+sku: Clearwater-VCF91-AIRI-FastTrack    # "Unique Lab ID" (decided by user), unique in the system, no spaces (API p100). Same value in class labs[0].sku
+name: VCF AIRI Fast Track          # "Name" (decided by user)
+shortDescription: ""                   # DECIDED 2026-10-09: left empty
+description: ""                        # DECIDED 2026-10-09: left empty
+
+# ---- lab-owned objects ----
+# CORRECTED 2026-10-09: each template gets its own pool; VKS uses its real template VCF91VKS-FastTrack-v5,
+# not VCF522-Upgrade-VCF9.1-REV1 (that pool now belongs to the VCF Upgrade session instead).
+deploymentPool: VCF91-AIRI-FastTrack-Rev4  # created 2026-10-11 (classes/pool_yaml/pool.clearwater.vcf91-airi.yaml)
+initialConsoleVm: Console              # set on the pool 2026-10-11
+manual: AIRI Fast Track              # Content Engine project, id 28498 (exists in VLP, confirmed 2026-10-11); Create Lab form > Manual list view (AG p106)
+resources: []                         # none yet
+catalogs: []                           # DECIDED: none (Catalog left empty). Catalog list view (AG p107; catalogs AG p124-125). A catalog with no group is
+                                       # invisible (AG p125); empty catalog = lab appears only under All Labs (AG p62). UNVERIFIED: the UI accepts an empty Catalog field
+saasConsoles: []                       # none for this lab (Update Content > SaaS consoles left empty; AG p97)
+
+# ---- VM Configuration tab (AG p111-112) ----
+vmConfiguration:
+  useFromDeploymentPool: true          # "Use from Deployment Pool": lab inherits initial console etc. from the pool (AG p111)
+
+# ---- availability (Lab Configuration page, General Settings; AG p107) ----
+enabled: false                         # DECIDED 2026-10-09: false for now
+publicVisible: false                   # Publicly Visible; SUGGEST false (sibling labs false)
+newItem: false                         # "New Lab" banner; SUGGEST false
+
+# ---- time (Create Lab form; AG p106, p108) ----
+timeAllottedHours: 48                  # "Time Allotted" = 2 days (decided by user; UI-facing 2d / 48 h; AG p106). API timelimit is in
+                                       # MINUTES: 48 h = 2880 (sibling 1500 = 25 h, 2940 = 49 h).
+validPeriodHours: 48                   # "Valid Period" = 2 days (decided by user; AG p106). API validPeriod is MILLISECONDS: 48 h = 172800000.
+                                       # Must be >= time allotted (equal is fine).
+
+# ---- runtime limits (Lab Configuration page; AG p107-110). SUGGESTED values, UNVERIFIED defaults: confirm on the form ----
+runtime:
+  endAllowed: true                     # End button visible (AG p107)
+  exitAllowed: true                    # Exit button visible
+  resetAllowed: false                  # Reset option (restores all VMs, work lost); sibling mostly false
+  powerOperation: none                 # none | suspend | poweroff | shutdown (AG p109: None / Suspend / Power off / Shut down and Power off vApp on Exit). sibling: none
+  concurrentUsageLimit: 0              # 0 = no limit (AG p110). DECIDE if the 8 OVDCs cannot hold every seat at once
+  undeployAfter: 0                     # 0 = no set limit (AG p109); only shown if the Portal setting 'Show Undeploy After' is on
+  prepopEnabled: true                  # derived from the pool (AG p109); the pool is Refill At/Fill Up/Prepops 0, so nothing deploys
+
+# ---- state record (not an input to VLP) ----
+status: created                        # planned | created
+createdOn: 2026-10-11                   # YYYY-MM-DD, required when status is created
+source: manual                         # recorded | manual | api (created by hand in the UI, walked with the user)
+verified: true
+verifiedOn: 2026-10-11               # fresh-session read of Lab Details/Settings/VM Metadata/Content; only warning is 'Lab does not belong to a catalog' (expected)

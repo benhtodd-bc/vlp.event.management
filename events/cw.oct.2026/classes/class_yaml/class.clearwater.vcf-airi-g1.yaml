@@ -1,0 +1,48 @@
+# Clearwater class definition (read by scripts/vlp_class.py; create_class_bulk_csv.py / create_vlp_class_ui.py).
+# VCF Upgrade Fast Track, cohort G1 (Oct 13-14). Offers both Upgrade labs (VC80U3 and VCF522).
+tenant: livefire
+className: VCF AIRI Fast Track - G1
+classSku:                             # blank -> derived
+description: VCF AIRI Fast Track - G1
+notes: ""
+enabled: false                        # DECIDED 2026-10-09: false for now
+timezone: America/New_York
+schedule:
+  startDate: "2026-10-15"
+  startTime: "08:00"
+  endDate: "2026-10-16"
+  endTime: "18:00"
+labs:
+  - sku: Clearwater-VCF91-AIRI-FastTrack
+    templateName: VCF91-AIRI-FastTrack-Rev4
+    displayName: VCF AIRI Fast Track
+    labDefinition: classes/lab_yaml/lab.clearwater.vcf91-airi.yaml   # created 2026-10-11
+numberOfSeats: 43                     # DECIDED 2026-10-09: rosters/roster.VCF.Track.G1.csv row count
+instructors:
+  - brian.watrous@broadcom.com        # set in VLP 2026-10-11 (replaced benjamin.todd, who remains owner)
+  - tim.burkard@broadcom.com
+owners:
+  - benjamin.todd@broadcom.com        # DECIDED 2026-10-09
+students:
+  source: rosters/roster.VCF.Track.G1.csv   # DECIDED 2026-10-09: invites from 'VCF Track G1'
+  includeInClassCsv: false              # DECIDED 2026-10-11: no students added to the class yet
+studentTokenMode: autoAdd
+sendEmails: false
+provisioning:
+  preProvisionEnabled: true
+  preProvisionPeriod: "0.04:00:00"    # DECIDED 2026-10-09: 4 hours before start
+  skipProvisioning: false
+preferredCloudLocation: ""
+capacity:
+  ovdcs: []
+  vappTemplates: []
+videoConference:
+  type: ""
+  meetingId: ""
+
+# ---- creation record (not an input to VLP) ----
+status: created                       # created 2026-10-11 via Classes > Bulk Upload (id 88884); disabled
+createdOn: 2026-10-11
+source: manual
+createdVia: Class Bulk Upload in the admin UI (classes/class_creation/vcf-airi-fast-track---g1.class.bulk.csv), no students
+verifiedOn: 2026-10-11                # read back via API: disabled, 43 seats, 4h pre-provision, America/New_York, dates correct, instructors Brian Watrous + Tim Burkard

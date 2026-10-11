@@ -1,0 +1,29 @@
+# Clearwater deployment pool definition for the AIRI session (read by scripts/vlp_pool.py; flows/create_pool.py, flows/edit_pool.py).
+# Each template gets its own pool (DECIDED 2026-10-09): this pool is dedicated to the AIRI lab/classes.
+# Shadowed in all 8 target OVDCs (checked 2026-10-11 with check_shadow.py).
+tenant: livefire
+poolName: VCF91-AIRI-FastTrack-Rev4   # matches the template name, same convention as the other pools
+description: ""
+templates:
+  - name: VCF91-AIRI-FastTrack-Rev4
+    catalog: CM3-EDUPROD-DGC
+ovdcs:
+  - lvn3-vcd2-eduprod-r-ovdc8
+  - lvn3-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd1-eduprod-r-ovdc3
+  - lvn9-vcd1-eduprod-r-ovdc12
+  - lvn9-vcd2-eduprod-r-ovdc6
+  - lvn9-vcd2-eduprod-r-ovdc7
+  - lvn9-vcd2-eduprod-r-ovdc8
+  - lvn9-vcd2-eduprod-r-ovdc13
+refillAt: 0
+fillUp: 0
+prepops: 0
+perOvdc: {}
+enabled: true
+explicitlyReadyPrepops: false
+status: created                      # created 2026-10-11 (id 45110); templates added by hand in the UI
+createdOn: 2026-10-11
+source: manual
+update:
+  initialConsoleVm: Console           # set 2026-10-11 via Update > Edit Vms (Initial console on the VM named Console); re-verified from a fresh session

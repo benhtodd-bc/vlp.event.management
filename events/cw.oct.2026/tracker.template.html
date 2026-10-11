@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event tracker</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1b2430;--mute:#5d6b7b;--line:#dde2e8;--acc:#0b6fa4;--ok:#1a7f4b;--okbg:#e3f4ea;--warn:#a15c00;--warnbg:#fff1d6;--bad:#b3261e;--badbg:#fde7e5;--prog:#0b6fa4;--progbg:#e1f0fa;--todo:#5d6b7b;--todobg:#eceff3}
+@media (prefers-color-scheme:dark){:root{--bg:#10151b;--card:#18202a;--ink:#e6ebf1;--mute:#9aa8b8;--line:#2a3643;--acc:#5bb4e8;--ok:#5fd394;--okbg:#17372a;--warn:#f0b44c;--warnbg:#3b2d12;--bad:#ff8a80;--badbg:#42201d;--prog:#5bb4e8;--progbg:#16303f;--todo:#9aa8b8;--todobg:#232d38}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+header{padding:16px 24px;border-bottom:1px solid var(--line);background:var(--card);display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center}
+header h1{margin:0;font-size:20px}header .sub{color:var(--mute);font-size:12px}
+.clocks{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}.clock b{display:block;font-size:18px;font-variant-numeric:tabular-nums}.clock span{color:var(--mute);font-size:11px}
+.countdown{background:var(--progbg);color:var(--prog);padding:6px 12px;border-radius:8px;font-weight:600}
+nav{display:flex;gap:4px;padding:0 24px;background:var(--card);border-bottom:1px solid var(--line)}
+nav button{border:0;background:none;padding:12px 16px;font-size:14px;color:var(--mute);cursor:pointer;border-bottom:3px solid transparent}
+nav button.on{color:var(--ink);border-bottom-color:var(--acc);font-weight:600}
+main{padding:20px 24px;max-width:1500px;margin:0 auto}.tab{display:none}.tab.on{display:block}
+h2{font-size:15px;margin:26px 0 8px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}h2:first-child{margin-top:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}.card .n{font-size:26px;font-weight:700}.card .l{color:var(--mute);font-size:12px}
+.card.ok{border-left:5px solid var(--ok)}.card.warn{border-left:5px solid var(--warn)}.card.bad{border-left:5px solid var(--bad)}
+table{border-collapse:collapse;width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}th{background:var(--todobg);font-size:12px;color:var(--mute)}tr:last-child td{border-bottom:0}
+.chip{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;white-space:normal;overflow-wrap:normal;word-break:normal;max-width:100%}
+.done{background:var(--okbg);color:var(--ok)}.progress{background:var(--progbg);color:var(--prog)}.todo,.none{background:var(--todobg);color:var(--todo)}.blocked{background:var(--badbg);color:var(--bad)}.unknown{background:var(--warnbg);color:var(--warn)}
+a{color:var(--acc)}.mute{color:var(--mute)}.small{font-size:12px}
+.links{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.links a,.links button{display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-decoration:none;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.links a:hover,.links button:hover{border-color:var(--acc)}
+input[type=search]{width:100%;max-width:520px;padding:10px 12px;font-size:15px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.sessions{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:12px}
+.sess h3{margin:0 0 6px;font-size:15px}.sess dl{margin:0;display:grid;grid-template-columns:110px 1fr;gap:3px 10px}.sess dt{color:var(--mute)}.sess dd{margin:0}
+iframe{display:none;width:100%;height:640px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.banner{background:var(--warnbg);color:var(--warn);padding:8px 12px;border-radius:8px;margin-bottom:12px}
+td:first-child{min-width:150px;overflow-wrap:normal}code{background:var(--todobg);padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body>
+<header>
+  <div><h1 id="title"></h1><div class="sub" id="sub"></div></div>
+  <div class="countdown" id="countdown"></div>
+  <div class="clocks" id="clocks"></div>
+</header>
+<nav><button data-tab="day0">Day 0 · Plan &amp; prepare</button><button data-tab="day2">Day 2 · Working the event</button></nav>
+<main>
+<div id="banner"></div>
+<section class="tab" id="day0"></section>
+<section class="tab" id="day2"></section>
+</main>
+<script>
+const D = __DATA__;
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const statusOf = (c) => { c = String(c); for (const [s,n] of [["🚫","blocked"],["🔄","progress"],["⬜","todo"],["❓","unknown"]]) if (c.includes(s)) return n; return c.includes("✅") ? "done" : "none"; };
+const chip = (st, text) => `<span class="chip ${st}">${esc(text)}</span>`;
+const tzShort = {"America/New_York":"ET","America/Los_Angeles":"PT","Europe/Sofia":"Sofia"};
+const fmt = (iso, tz) => new Intl.DateTimeFormat("en-US",{timeZone:tz,weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date(iso)) + " " + (tzShort[tz]||tz);
+const when = (iso) => D.event.timezones.map(tz => `${fmt(iso,tz)}`).join(" &nbsp;|&nbsp; ");
+const admin = (p) => D.adminBase + p;
+const rel = (iso) => { const s = (new Date(iso) - Date.now())/1000, a = Math.abs(s); const d = Math.floor(a/86400), h = Math.floor(a%86400/3600), m = Math.floor(a%3600/60); return (s<0?"started ":"in ") + (d?d+"d ":"") + h+"h "+m+"m" + (s<0?" ago":""); };
+const snap = D.snap, pools = snap.pools || [], classesFound = snap.classes_found || {};
+const LABEL = {done:"done",progress:"in progress",todo:"not started",blocked:"blocked",unknown:"unverified"};
+const statusChip = (st, v) => chip(st, String(v).replace(/^(✅|🔄|⬜|🚫|❓)\s*/, "") || LABEL[st]);
+const trackerTable = (prefix) => { const k = Object.keys(D.tracker).find(k => k.startsWith(prefix)); return k ? D.tracker[k] : []; };
+
+function table(headers, rows, opts = {}) {
+  return `<table><thead><tr>${headers.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+function trackerHtml(rows) {
+  if (!rows.length) return "";
+  const hs = Object.keys(rows[0]);
+  const cell = (v) => { const st = statusOf(v); return st === "none" ? esc(v) : statusChip(st, v); };
+  return table(hs, rows.map(r => hs.map((h,i) => i === 0 ? `<b>${esc(r[h])}</b>` : cell(r[h]))));
+}
+
+// ---------- header ----------
+$("#title").textContent = D.event.name + " — event tracker";
+$("#sub").textContent = `${D.event.location} · snapshot ${new Date(D.generated).toLocaleString()} · regenerate with: python3 build_tracker.py (in events/cw.oct.2026)`;
+function tick() {
+  $("#clocks").innerHTML = D.event.timezones.map(tz => `<div class="clock"><b>${new Intl.DateTimeFormat("en-GB",{timeZone:tz,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date())}</b><span>${esc(tzShort[tz]||tz)}</span></div>`).join("");
+  const next = D.classes.map(c => c.start).sort()[0];
+  $("#countdown").textContent = next ? "First class " + rel(next) : "";
+}
+tick(); setInterval(tick, 1000);
+if (!snap.ok) $("#banner").innerHTML = `<div class="banner">VLP data could not be read for this snapshot (${esc(snap.error||"unknown")}). Status below comes from the markdown files only.</div>`;
+
+// ---------- Day 0 ----------
+const shadowTpl = Object.entries(snap.shadows || {});
+const shadowOk = shadowTpl.filter(([,s]) => s.shadowed === s.total).length;
+const poolNames = D.event.epc.templates_to_use;
+const poolsExist = poolNames.filter(n => pools.some(p => p.name === n)).length;
+const poolsWithLab = pools.filter(p => (p.labs||[]).length).length;
+const classTotal = trackerTable("Classes").length;
+const classesInVlp = D.classes.filter(c => classesFound[c.sku]).length;
+const rosterTotal = D.classes.reduce((n,c) => n + c.roster.length, 0);
+const acctOk = D.classes.reduce((n,c) => n + c.roster.filter(s => snap.accounts && snap.accounts[s.email]).length, 0);
+const haveAcct = snap.accounts && Object.keys(snap.accounts).length > 0;
+const card = (n, l, cls) => `<div class="card ${cls}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+const cls = (a,b) => a === b ? "ok" : (a === 0 ? "bad" : "warn");
+let d0 = `<h2>Readiness</h2><div class="cards">
+ ${card(`${shadowOk}/${poolNames.length}`, "templates shadowed in all target OVDCs", cls(shadowOk,poolNames.length))}
+ ${card(`${poolsExist}/${poolNames.length}`, "deployment pools exist", cls(poolsExist,poolNames.length))}
+ ${card(`${poolsWithLab}/${poolNames.length}`, "pools attached to a lab", cls(poolsWithLab,poolNames.length))}
+ ${card(`${classesInVlp}/${classTotal}`, "classes created in VLP", cls(classesInVlp,classTotal))}
+ ${haveAcct ? card(`${acctOk}/${rosterTotal}`, "roster accounts exist in VLP (invites loaded)", cls(acctOk,rosterTotal)) : ""}
+</div>`;
+d0 += `<h2>What's left (in build order)</h2>` + (D.todo.length ? table(["Step","For","What","Status / detail","Runbook"], D.todo.map(t => [t.step, `<b>${esc(t.area)}</b>`, esc(t.what), statusChip(t.status, t.detail), t.runbook ? `<a href="${esc(t.runbook)}">${esc(t.runbook.replace("docs/",""))}</a>` : ""])) : "<p>Nothing outstanding in the tracker.</p>");
+d0 += `<h2>Labs (build steps 1–5)</h2>` + trackerHtml(trackerTable("Labs"));
+const orgOf = (o) => o.replace(/-ovdc\d+$/, "");
+const ovdcNum = (o) => parseInt((o.match(/ovdc(\d+)$/) || [0, 0])[1], 10);
+const shadowChip = (st) => st === "SHADOWED" ? chip("done", "shadowed") : st === "available to shadow" ? chip("todo", "not shadowed") : st === "NOT SHADOWED" ? chip("blocked", "not shadowed") : chip("unknown", st.toLowerCase());
+function shadowGrid() {
+  const orgs = [...new Set(D.event.epc.ovdcs.map(orgOf))].sort();
+  const stateOf = (s, o) => (s.ovdcs || {})[o] || "NOT LISTED";
+  let rows = "";
+  for (const org of orgs) {
+    const list = D.event.epc.ovdcs.filter(o => orgOf(o) === org).sort((x, y) => ovdcNum(x) - ovdcNum(y));
+    rows += `<tr><th colspan="${shadowTpl.length + 1}" style="background:var(--todobg);color:var(--ink)">Cloud org: <code>${esc(org)}</code> <span class="mute small">(${list.length} target OVDC${list.length > 1 ? "s" : ""})</span></th></tr>`;
+    for (const o of list) rows += `<tr><td><code>${esc(o)}</code></td>${shadowTpl.map(([, s]) => `<td>${shadowChip(stateOf(s, o))}</td>`).join("")}</tr>`;
+    rows += `<tr><td class="mute small">${esc(org)} total</td>${shadowTpl.map(([, s]) => { const n = list.filter(o => stateOf(s, o) === "SHADOWED").length; return `<td>${chip(n === list.length ? "done" : "todo", n + "/" + list.length)}</td>`; }).join("")}</tr>`;
+  }
+  rows += `<tr><td><b>All target OVDCs</b></td>${shadowTpl.map(([, s]) => `<td>${chip(s.shadowed === s.total ? "done" : "todo", s.shadowed + "/" + s.total)}</td>`).join("")}</tr>`;
+  return `<table><thead><tr><th>OVDC</th>${shadowTpl.map(([t]) => `<th>${esc(t)}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table><p class="mute small">Source: CloudShadow API at snapshot time. Grouped by cloud org.</p>`;
+}
+d0 += `<h2>Shadow status — target OVDCs by cloud org (${D.event.epc.ovdcs.length} OVDCs, ${new Set(D.event.epc.ovdcs.map(orgOf)).size} orgs)</h2>` + (shadowTpl.length ? shadowGrid() : "<p class='mute'>No VLP data.</p>");
+d0 += `<h2>Classes (build steps 6–7)</h2>` + trackerHtml(trackerTable("Classes"));
+const noDef = trackerTable("Classes").filter(r => !D.classes.some(c => c.name.toLowerCase().includes((r.Class||"").toLowerCase()))).map(r => r.Class);
+d0 += `<h2>Sessions — schedule, seats, rosters</h2><div class="sessions">${D.classes.map(sessionCard).join("")}</div>` + (noDef.length ? `<p class="mute small">No class definition yet (no schedule or roster to show): ${esc(noDef.join(", "))}.</p>` : "");
+d0 += `<h2>Event facts</h2>` +
+  table(["Item","Value"], [["Event", esc(D.event.name)],["Location", esc(D.event.location)],["Event time zone", esc(D.event.event_tz)],["Time zones", esc(D.event.timezones.map(t => (tzShort[t]||t)+" ("+t+")").join(", "))],["Cloud (EPC)", esc(D.event.epc.epc.join(", "))],["Source catalog", esc(D.event.epc.source_catalog.join(", "))],["Target catalog", esc(D.event.epc.target_catalog.join(", "))],["Target OVDCs", esc(D.event.epc.ovdcs.join(", "))],["Templates", esc(D.event.epc.templates_to_use.join(", "))]]) +
+  `<h2>Sessions → lab template / manual</h2>` + table(["Session","Lab template(s) / manual(s)"], D.event.sessions.map(r => [`<b>${esc(r["Session Title"])}</b>`, esc(r["LAB template(s)/manual(s)"])])) +
+  `<h2>ATE team</h2>` + table(["Name","Email","Role","Assignment"], D.event.team.map(r => [esc(r.Name), `<a href="mailto:${esc(r.Email)}">${esc(r.Email)}</a>`, esc(r.Role), esc(r.Assignment)]));
+d0 += `<h2>Runbooks</h2><div class="links">${["class-build","deployment-pool","shadowing","lab","lab-resource","manual-project"].map(n => `<a href="docs/${n}.runbook.md">${n}.runbook</a>`).join("")}<a href="docs/dry-run.ui.checklist.md">dry-run.ui.checklist</a><a href="docs/needed-values.md">needed-values</a><a href="lab-management.tracker.md">lab-management.tracker.md</a><a href="cw.oct.2026.md">cw.oct.2026.md</a></div>`;
+$("#day0").innerHTML = d0;
+
+function sessionCard(c) {
+  const found = classesFound[c.sku];
+  const accts = snap.accounts ? c.roster.filter(s => snap.accounts[s.email]).length : null;
+  return `<div class="card sess"><h3>${esc(c.name)} ${found ? chip("done","in VLP") : chip("todo","not created")}</h3><dl>
+   <dt>Starts</dt><dd>${when(c.start)}</dd><dt>Ends</dt><dd>${when(c.end)}</dd>
+   <dt>Seats / roster</dt><dd>${esc(c.seats)} seats · ${c.roster.length} on roster${accts!==null ? " · " + accts + " have VLP accounts" : ""}</dd>
+   <dt>Instructors</dt><dd>${c.instructors.map(e => `<a href="mailto:${esc(e)}">${esc(e)}</a>`).join(", ")}</dd>
+   <dt>Labs</dt><dd>${esc(c.labs.join("; "))}</dd><dt>Class SKU</dt><dd><code>${esc(c.sku)}</code></dd>
+   <dt>Class page</dt><dd><a href="${admin("/admin/classes")}" target="_blank" rel="noopener">Open Classes list</a> <span class="mute small">(search “${esc(c.name)}”${found ? "" : "; not created yet"})</span></dd></dl></div>`;
+}
+
+// ---------- Day 2 ----------
+let d2 = `<h2>VLP admin console</h2><div class="links">${D.adminLinks.map(([l,p]) => `<a href="${admin(p)}" target="_blank" rel="noopener">${esc(l)}</a>`).join("")}</div>
+<h2>Pool health (snapshot)</h2>` + (pools.length ? table(["Pool","Available","Provisioning","Ready","Errors","Refill / Fill up","Lab attached"], pools.map(p => [
+   `<a href="${admin("/admin/deployment-pools")}" target="_blank" rel="noopener"><b>${esc(p.name)}</b></a>`, p.available, p.provisioning, p.ready,
+   p.errors ? chip("blocked", p.errors + " error" + (p.errors>1?"s":"")) + (p.errorMsgs.length ? `<div class="small mute">${esc(p.errorMsgs.join("; "))}</div>` : "") : chip("done","0"),
+   `${p.refillAt} / ${p.fillUp}`, (p.labs||[]).length ? esc(p.labs.join("; ")) : chip("todo","none")])) : "<p class='mute'>No VLP data.</p>");
+d2 += `<h2>Find a student</h2><input type="search" id="q" placeholder="Name or email…" autocomplete="off"><div id="results" style="margin-top:12px"></div>
+<h2>Sessions</h2><div class="sessions">${D.classes.map(sessionCard).join("")}</div>
+<h2>Console panel</h2><p class="mute small">Embeds an admin page here. If the panel stays blank, VLP is refusing to be framed — use the link above to open it in a tab instead.</p>
+<div class="links" style="margin-bottom:10px">${D.adminLinks.slice(0,6).map(([l,p]) => `<button data-frame="${admin(p)}">${esc(l)}</button>`).join("")}</div><iframe id="panel" title="VLP admin"></iframe>`;
+$("#day2").innerHTML = d2;
+
+const allStudents = D.classes.flatMap(c => c.roster.map(s => ({...s, cls: c})));
+const staff = D.event.team.map(t => ({name: t.Name, email: t.Email, role: t.Role, assignment: t.Assignment}));
+function lookup() {
+  const q = $("#q").value.trim().toLowerCase();
+  if (!q) { $("#results").innerHTML = `<span class="mute">${allStudents.length} students on ${D.classes.length} rosters. Type to search.</span>`; return; }
+  const staffHits = staff.filter(s => (s.name + " " + s.email).toLowerCase().includes(q));
+  const staffHtml = staffHits.length ? "<h3 style='margin:0 0 6px'>ATE staff</h3>" + table(["Name","Email","Role","Assignment"], staffHits.map(s => [`<b>${esc(s.name)}</b>`, `<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`, esc(s.role), esc(s.assignment)])) + "<div style='height:12px'></div>" : "";
+  const hits = allStudents.filter(s => (s.name + " " + s.email).toLowerCase().includes(q)).slice(0, 25);
+  $("#results").innerHTML = staffHtml + (hits.length ? table(["Student","Email","Class","Starts","Lab(s)","Instructor(s)","VLP account"], hits.map(s => [
+    `<b>${esc(s.name)}</b><div class="small mute">${esc(s.company)}</div>`, `<a href="mailto:${esc(s.email)}">${esc(s.email)}</a>`, esc(s.cls.name), when(s.cls.start), esc(s.cls.labs.join("; ")), esc(s.cls.instructors.join(", ")),
+    snap.accounts && s.email in snap.accounts ? (snap.accounts[s.email] ? chip("done","exists") : chip("blocked","not found")) : chip("none","unknown")])) : (staffHits.length ? "" : "<span class='mute'>No match on any roster or the ATE team.</span>"));
+}
+$("#q").addEventListener("input", lookup); lookup();
+document.querySelectorAll("[data-frame]").forEach(b => b.addEventListener("click", () => { $("#panel").style.display = "block"; $("#panel").src = b.dataset.frame; }));
+
+// ---------- tabs ----------
+function show(t) { document.querySelectorAll(".tab").forEach(e => e.classList.toggle("on", e.id === t)); document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.tab === t)); history.replaceState(null, "", "#" + t); }
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.tab)));
+show(location.hash === "#day2" ? "day2" : "day0");
+</script>
+</body>
+</html>

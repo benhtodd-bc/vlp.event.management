@@ -48,8 +48,8 @@ runtime:
   prepopEnabled: true                  # derived from the pool (AG p109); the pool is Refill At/Fill Up/Prepops 0, so nothing deploys
 
 # ---- state record (not an input to VLP) ----
-status: planned                        # planned | created
-createdOn:                             # YYYY-MM-DD, required when status is created
+status: created                        # planned | created
+createdOn: 2026-10-11                   # YYYY-MM-DD, required when status is created
 source: manual                         # recorded | manual | api
-verified: false
-verifiedOn:
+verified: true
+verifiedOn: 2026-10-11               # fresh-session read: pool, manual, catalog empty, 2d/2d, disabled, shareable off, power None, use-from-pool on

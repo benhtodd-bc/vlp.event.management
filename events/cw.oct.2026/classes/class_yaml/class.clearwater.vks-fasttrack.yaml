@@ -25,7 +25,7 @@ owners:
   - benjamin.todd@broadcom.com        # DECIDED 2026-10-09
 students:
   source: rosters/roster.VKS.Track.csv   # DECIDED 2026-10-09: invites from 'VKS Track'; path relative to event root
-  includeInClassCsv: true
+  includeInClassCsv: false              # DECIDED 2026-10-11: no students added to the class yet
 studentTokenMode: autoAdd           # students join via registration URL
 sendEmails: false                     # no emails sent unless true (or --send-emails)
 provisioning:
@@ -52,3 +52,10 @@ capacity:                             # preflight only; not emitted to the class
 videoConference:
   type: ""
   meetingId: ""                       # no password is ever stored here
+
+# ---- creation record (not an input to VLP) ----
+status: created                       # created 2026-10-11 via Classes > Bulk Upload, disabled (id 88885)
+createdOn: 2026-10-11
+source: manual
+createdVia: Class Bulk Upload (classes/class_creation/*.class.bulk.csv, no students); multiple labs attached in the UI's Lab Details step
+verifiedOn: 2026-10-11                # read back: disabled, seats, 4h pre-provision, America/New_York, instructors Dhiraj Sharma, labs attached, resource saving off

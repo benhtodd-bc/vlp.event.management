@@ -29,7 +29,7 @@ owners:
   - benjamin.todd@broadcom.com        # DECIDED 2026-10-09
 students:
   source: rosters/roster.VCF.Track.G1.csv   # DECIDED 2026-10-09: invites from 'VCF Track G1'
-  includeInClassCsv: true
+  includeInClassCsv: false              # DECIDED 2026-10-11: no students added to the class yet
 studentTokenMode: autoAdd
 sendEmails: false
 provisioning:
@@ -43,3 +43,10 @@ capacity:
 videoConference:
   type: ""
   meetingId: ""
+
+# ---- creation record (not an input to VLP) ----
+status: created                       # created 2026-10-11 via Classes > Bulk Upload, disabled (id 88886)
+createdOn: 2026-10-11
+source: manual
+createdVia: Class Bulk Upload (classes/class_creation/*.class.bulk.csv, no students); multiple labs attached in the UI's Lab Details step
+verifiedOn: 2026-10-11                # read back: disabled, seats, 4h pre-provision, America/New_York, instructors Alasdair Carnie + Andy Beltz, labs attached, resource saving off

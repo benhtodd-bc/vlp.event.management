@@ -10,7 +10,7 @@ description: ""                        # DECIDED 2026-10-09: left empty
 
 # ---- lab-owned objects ----
 deploymentPool: VC80U3-to-VCF911-Upgrade-Clearwater-Rev2   # created 2026-10-09 (classes/pool_yaml/pool.clearwater.vc80u3-upgrade.yaml)
-initialConsoleVm: console              # matches the pool's planned initial console; verify once the pool exists
+initialConsoleVm: dc01-20Mar2026      # set on the lab 2026-10-11 by the event admin (pool has no VM named Console)
 manual: vSphere-to-VVF-Upgrade          # already exists in VLP (instructor-maintained); just attach, do not create
 resources: []                          # none identified for this lab yet
 catalogs: []                           # DECIDED: none
@@ -18,7 +18,7 @@ saasConsoles: []                       # none for this lab
 
 # ---- VM Configuration tab (AG p111-112) ----
 vmConfiguration:
-  useFromDeploymentPool: true
+  useFromDeploymentPool: false         # lab-level initial console (Update Vm Metadata), not the pool's
 
 # ---- availability (Lab Configuration page; AG p107) ----
 enabled: false                         # DECIDED 2026-10-09: false for now
@@ -40,8 +40,8 @@ runtime:
   prepopEnabled: true
 
 # ---- state record (not an input to VLP) ----
-status: planned                        # planned | created
+status: created                        # planned | created
 createdOn:
 source: manual
-verified: false
-verifiedOn:
+verified: true
+verifiedOn: 2026-10-11               # fresh-session read: pool, manual, catalog empty, 2d/2d, disabled, shareable off, power None, use-from-pool on
